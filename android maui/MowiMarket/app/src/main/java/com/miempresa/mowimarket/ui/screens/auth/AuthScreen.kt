@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,14 +22,35 @@ import com.miempresa.mowimarket.ui.components.MowiButton
 import com.miempresa.mowimarket.ui.components.MowiOutlinedButton
 import com.miempresa.mowimarket.ui.components.MowiTextField
 import com.miempresa.mowimarket.ui.theme.MowiOrange
+import com.miempresa.mowimarket.ui.viewmodels.AuthUiState
+import com.miempresa.mowimarket.ui.viewmodels.AuthViewModel
 
 @Composable
 fun AuthScreen(
     onLoginSuccess: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel = remember { AuthViewModel(context) }
+    val uiState by viewModel.uiState.collectAsState()
+
     var isLoginTab by remember { mutableStateOf(true) }
     val scrollState = rememberScrollState()
+
+    // Observar cambios en el estado
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is AuthUiState.Success -> {
+                onLoginSuccess()
+                viewModel.resetUiState()
+            }
+            is AuthUiState.RegisterSuccess -> {
+                // Cambiar a la pestaña de login después de registro exitoso
+                isLoginTab = true
+            }
+            else -> {}
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -120,10 +142,54 @@ fun AuthScreen(
                             .weight(1f)
                             .verticalScroll(scrollState)
                     ) {
+                        // Mostrar mensaje de error
+                        if (uiState is AuthUiState.Error) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
+                                )
+                            ) {
+                                Text(
+                                    text = (uiState as AuthUiState.Error).message,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+                        }
+
+                        // Mostrar mensaje de éxito en registro
+                        if (uiState is AuthUiState.RegisterSuccess) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                                )
+                            ) {
+                                Text(
+                                    text = (uiState as AuthUiState.RegisterSuccess).message + "\nAhora puedes iniciar sesión",
+                                    color = Color(0xFF2E7D32),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+                        }
+
                         if (isLoginTab) {
-                            LoginForm(onLoginSuccess)
+                            LoginForm(
+                                viewModel = viewModel,
+                                isLoading = uiState is AuthUiState.Loading
+                            )
                         } else {
-                            RegisterForm(onLoginSuccess)
+                            RegisterForm(
+                                viewModel = viewModel,
+                                isLoading = uiState is AuthUiState.Loading
+                            )
                         }
                     }
                 }
@@ -133,7 +199,10 @@ fun AuthScreen(
 }
 
 @Composable
-private fun LoginForm(onLoginSuccess: () -> Unit) {
+private fun LoginForm(
+    viewModel: AuthViewModel,
+    isLoading: Boolean
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -144,7 +213,8 @@ private fun LoginForm(onLoginSuccess: () -> Unit) {
             label = "Correo Electrónico",
             placeholder = "tu@email.com",
             keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Next,
+            enabled = !isLoading
         )
 
         MowiTextField(
@@ -153,40 +223,37 @@ private fun LoginForm(onLoginSuccess: () -> Unit) {
             label = "Contraseña",
             placeholder = "Tu contraseña",
             isPassword = true,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Done,
+            enabled = !isLoading
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        MowiButton(text = "Iniciar Sesión", onClick = onLoginSuccess)
-
-        Text(
-            text = "¿Olvidaste tu contraseña?",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MowiOrange,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+        MowiButton(
+            text = if (isLoading) "Iniciando sesión..." else "Iniciar Sesión",
+            onClick = {
+                viewModel.login(email, password)
+            },
+            enabled = !isLoading
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Divider()
-
-        Text(
-            text = "Cuentas de demostración:",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MowiOutlinedButton(text = "Entrar como Cliente", onClick = onLoginSuccess)
-        MowiOutlinedButton(text = "Entrar como Administrador", onClick = onLoginSuccess)
+        if (!isLoading) {
+            Text(
+                text = "¿Olvidaste tu contraseña?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MowiOrange,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
-private fun RegisterForm(onRegisterSuccess: () -> Unit) {
+private fun RegisterForm(
+    viewModel: AuthViewModel,
+    isLoading: Boolean
+) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -198,7 +265,8 @@ private fun RegisterForm(onRegisterSuccess: () -> Unit) {
             onValueChange = { fullName = it },
             label = "Nombre Completo",
             placeholder = "Tu nombre completo",
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Next,
+            enabled = !isLoading
         )
 
         MowiTextField(
@@ -207,7 +275,8 @@ private fun RegisterForm(onRegisterSuccess: () -> Unit) {
             label = "Correo Electrónico",
             placeholder = "tu@email.com",
             keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Next,
+            enabled = !isLoading
         )
 
         MowiTextField(
@@ -216,7 +285,8 @@ private fun RegisterForm(onRegisterSuccess: () -> Unit) {
             label = "Contraseña",
             placeholder = "Mínimo 6 caracteres",
             isPassword = true,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Next,
+            enabled = !isLoading
         )
 
         MowiTextField(
@@ -225,11 +295,18 @@ private fun RegisterForm(onRegisterSuccess: () -> Unit) {
             label = "Confirmar Contraseña",
             placeholder = "Confirma tu contraseña",
             isPassword = true,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Done,
+            enabled = !isLoading
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        MowiButton(text = "Crear Cuenta Nueva", onClick = onRegisterSuccess)
+        MowiButton(
+            text = if (isLoading) "Creando cuenta..." else "Crear Cuenta Nueva",
+            onClick = {
+                viewModel.register(fullName, email, password, confirmPassword)
+            },
+            enabled = !isLoading
+        )
     }
 }
