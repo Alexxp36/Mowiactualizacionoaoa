@@ -88,8 +88,15 @@ DATABASES = {
         'PASSWORD': 'evor0806',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
+
+# Desactivar verificación de versión de MariaDB para desarrollo
+import django.db.backends.mysql.base
+django.db.backends.mysql.base.DatabaseWrapper.check_database_version_supported = lambda self: None
 
 
 # Password validation
