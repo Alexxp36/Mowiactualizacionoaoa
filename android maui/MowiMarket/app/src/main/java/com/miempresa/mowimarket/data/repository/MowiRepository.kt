@@ -170,6 +170,19 @@ class MowiRepository(private val tokenManager: TokenManager) {
         }
     }
 
+    suspend fun getUsuariosActivosSemana(): Result<List<UsuariosActivosSemana>> {
+        return try {
+            val response = api.getUsuariosActivosSemana(getAuthHeader())
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error al obtener usuarios activos"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getUsuarios(): Result<List<UserData>> {
         return try {
             val response = api.getUsuarios(getAuthHeader())
