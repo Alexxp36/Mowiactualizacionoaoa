@@ -228,7 +228,7 @@ private fun PedidoAdminCard(pedido: Pedido) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = pedido.fechaPedido ?: "Sin fecha",
+                        text = pedido.fechaPedido,
                         style = MaterialTheme.typography.bodySmall,
                         color = TextSecondary
                     )
@@ -259,12 +259,12 @@ private fun PedidoAdminCard(pedido: Pedido) {
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "Dirección de Envío",
+                        text = "Método de Pago",
                         style = MaterialTheme.typography.labelSmall,
                         color = TextSecondary
                     )
                     Text(
-                        text = pedido.direccionEnvio ?: "No especificada",
+                        text = pedido.metodoPago ?: "No especificado",
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1
                     )
@@ -275,8 +275,7 @@ private fun PedidoAdminCard(pedido: Pedido) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
                 OutlinedButton(
                     onClick = { /* TODO: Ver detalles */ },
