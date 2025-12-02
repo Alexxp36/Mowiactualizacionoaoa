@@ -176,9 +176,9 @@ fun HomeScreen(
                                             style = MaterialTheme.typography.bodyLarge,
                                             fontWeight = FontWeight.Medium
                                         )
-                                        if (categoria.descripcion.isNotBlank()) {
+                                        if (!categoria.descripcion.isNullOrBlank()) {
                                             Text(
-                                                categoria.descripcion,
+                                                categoria.descripcion ?: "",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = TextSecondary,
                                                 maxLines = 1
@@ -295,7 +295,8 @@ fun HomeScreen(
                             text = if (categoriaSeleccionada == null) {
                                 "Descubre productos increíbles a precios únicos"
                             } else {
-                                categorias.find { it.id == categoriaSeleccionada }?.descripcion ?: ""
+                                val categoriaDesc = categorias.find { it.id == categoriaSeleccionada }?.descripcion
+                                categoriaDesc ?: ""
                             },
                             style = MaterialTheme.typography.bodyLarge,
                             color = TextWhite.copy(alpha = 0.9f),
