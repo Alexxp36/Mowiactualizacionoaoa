@@ -61,6 +61,19 @@ class MowiRepository(private val tokenManager: TokenManager) {
         }
     }
 
+    suspend fun crearProducto(producto: Producto): Result<Producto> {
+        return try {
+            val response = api.crearProducto(getAuthHeader(), producto)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error al crear producto"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // ==================== CARRITO ====================
     suspend fun getCarrito(usuarioId: Int): Result<Carrito> {
         return try {

@@ -168,6 +168,20 @@ fun NavGraph(
             com.miempresa.mowimarket.ui.screens.admin.AdminProductsScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onAddProduct = {
+                    navController.navigate(Screen.AdminAddProduct.route)
+                }
+            )
+        }
+
+        composable(Screen.AdminAddProduct.route) {
+            com.miempresa.mowimarket.ui.screens.admin.AddProductScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onProductSaved = {
+                    navController.popBackStack()
                 }
             )
         }

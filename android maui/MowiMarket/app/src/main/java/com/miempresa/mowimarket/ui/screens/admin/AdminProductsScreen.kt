@@ -22,7 +22,8 @@ import com.miempresa.mowimarket.ui.viewmodels.ProductosViewModel
 @Composable
 fun AdminProductsScreen(
     onNavigateBack: () -> Unit,
-    onEditProduct: (Int) -> Unit = {}
+    onEditProduct: (Int) -> Unit = {},
+    onAddProduct: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel = remember { ProductosViewModel(context) }
@@ -65,7 +66,7 @@ fun AdminProductsScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { /* TODO: Navigate to create product */ },
+                onClick = onAddProduct,
                 containerColor = MowiOrange,
                 contentColor = Color.White
             ) {
