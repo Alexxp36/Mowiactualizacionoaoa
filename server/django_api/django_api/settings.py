@@ -102,14 +102,9 @@ import django.db.backends.mysql.features
 django.db.backends.mysql.base.DatabaseWrapper.check_database_version_supported = lambda self: None
 
 # Desactivar uso de RETURNING (no soportado en MariaDB 10.4)
-original_init = django.db.backends.mysql.features.DatabaseFeatures.__init__
-
-def patched_init(self, connection):
-    original_init(self, connection)
-    self.can_return_columns_from_insert = False
-    self.can_return_rows_from_bulk_insert = False
-
-django.db.backends.mysql.features.DatabaseFeatures.__init__ = patched_init
+# Sobrescribir las propiedades directamente en la clase
+django.db.backends.mysql.features.DatabaseFeatures.can_return_columns_from_insert = False
+django.db.backends.mysql.features.DatabaseFeatures.can_return_rows_from_bulk_insert = False
 
 
 # Password validation
