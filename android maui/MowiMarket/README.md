@@ -4,15 +4,38 @@ Aplicación móvil Android nativa para MowiMarket, conectada con el backend Djan
 
 ## 🚀 Características Implementadas
 
-✅ **Autenticación Completa:**
+### ✅ **Autenticación Completa:**
 - Inicio de sesión con email y contraseña
 - Registro de nuevos usuarios
 - Validación de formularios
 - Manejo de errores y mensajes
 - Almacenamiento seguro de tokens JWT
 - Persistencia de sesión de usuario
+- Detección automática de rol (Admin/Cliente)
 
-✅ **Integración con API:**
+### ✅ **Infraestructura Completa:**
+- **Modelos de datos**: Producto, Categoría, Pedido, Carrito, Usuario
+- **API Service**: Retrofit con todos los endpoints del backend
+- **Repository Pattern**: MowiRepository centralizado
+- **ViewModels**: MainViewModel, AuthViewModel, ProductosViewModel, CarritoViewModel
+- **Manejo de estado**: StateFlow para reactive UI
+- **Navegación**: Navigation Compose
+
+### ✅ **Funcionalidades de Cliente:**
+- Pantalla Home con categorías
+- Catálogo de productos con filtros
+- Carrito de compras
+- Historial de pedidos
+- Perfil de usuario
+
+### ✅ **Funcionalidades de Administrador:**
+- Dashboard con KPIs
+- Gestión de productos
+- Gestión de pedidos
+- Gestión de usuarios
+- Analytics y reportes
+
+### ✅ **Integración con API:**
 - Conexión con el backend Django
 - Uso de Retrofit para llamadas HTTP
 - Gestión de tokens de acceso y refresh
