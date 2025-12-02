@@ -1,6 +1,10 @@
 package com.miempresa.mowimarket.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,6 +15,7 @@ import com.miempresa.mowimarket.ui.screens.cart.CartScreen
 import com.miempresa.mowimarket.ui.screens.home.HomeScreen
 import com.miempresa.mowimarket.ui.screens.products.ProductsScreen
 import com.miempresa.mowimarket.ui.screens.support.SupportScreen
+import com.miempresa.mowimarket.ui.viewmodels.MainViewModel
 
 @Composable
 fun NavGraph(
@@ -104,8 +109,8 @@ fun NavGraph(
         }
 
         composable(Screen.Auth.route) {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            val mainViewModel = androidx.compose.runtime.remember { com.miempresa.mowimarket.ui.viewmodels.MainViewModel(context) }
+            val context = LocalContext.current
+            val mainViewModel = remember { MainViewModel(context) }
             val currentUser by mainViewModel.currentUser.collectAsState()
 
             AuthScreen(
