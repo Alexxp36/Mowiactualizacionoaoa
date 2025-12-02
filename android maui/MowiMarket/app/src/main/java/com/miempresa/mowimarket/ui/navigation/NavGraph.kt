@@ -23,26 +23,54 @@ fun NavGraph(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                onNavigateToProducts = { category ->
-                    navController.navigate(Screen.Products.route)
+                onNavigateToProducts = { categoryId ->
+                    if (categoryId != null) {
+                        // Find category name from Categories list
+                        val category = com.miempresa.mowimarket.data.models.Categories.ALL.find { it.id == categoryId }
+                        navController.navigate(Screen.Products.createRoute(categoryId, category?.name))
+                    } else {
+                        navController.navigate(Screen.Products.createRoute())
+                    }
                 },
                 onNavigateToCart = {
                     navController.navigate(Screen.Cart.route)
                 },
                 onNavigateToAuth = {
                     navController.navigate(Screen.Auth.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
                 }
             )
         }
 
-        composable(Screen.Products.route) {
+        composable(
+            route = Screen.Products.route,
+            arguments = listOf(
+                navArgument("categoryId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("categoryName") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId")
+            val categoryName = backStackEntry.arguments?.getString("categoryName")
+
             ProductsScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
                 onProductClick = { productId ->
                     navController.navigate(Screen.ProductDetail.createRoute(productId))
-                }
+                },
+                categoryId = categoryId,
+                categoryName = categoryName
             )
         }
 
@@ -82,6 +110,19 @@ fun NavGraph(
                 },
                 onDismiss = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.Profile.route) {
+            com.miempresa.mowimarket.ui.screens.profile.ProfileScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onLogout = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
                 }
             )
         }

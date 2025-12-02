@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -19,14 +20,22 @@ import com.miempresa.mowimarket.data.models.Product
 import com.miempresa.mowimarket.ui.components.*
 import com.miempresa.mowimarket.ui.theme.MowiOrange
 import com.miempresa.mowimarket.ui.theme.TextWhite
+import com.miempresa.mowimarket.ui.viewmodels.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToProducts: (String?) -> Unit,
     onNavigateToCart: () -> Unit,
-    onNavigateToAuth: () -> Unit
+    onNavigateToAuth: () -> Unit,
+    onNavigateToProfile: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val mainViewModel = remember { MainViewModel(context) }
+
+    val currentUser by mainViewModel.currentUser.collectAsState()
+    val isLoggedIn = currentUser != null
+
     val scrollState = rememberScrollState()
 
     // Mock data de productos destacados
@@ -67,8 +76,10 @@ fun HomeScreen(
             MowiTopBar(
                 onCartClick = onNavigateToCart,
                 onLoginClick = onNavigateToAuth,
+                onProfileClick = onNavigateToProfile,
                 cartItemCount = 0,
-                isLoggedIn = false
+                isLoggedIn = isLoggedIn,
+                userName = currentUser?.name
             )
         }
     ) { paddingValues ->

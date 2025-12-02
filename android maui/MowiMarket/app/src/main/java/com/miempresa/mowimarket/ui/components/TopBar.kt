@@ -19,9 +19,11 @@ import com.miempresa.mowimarket.ui.theme.TextWhite
 fun MowiTopBar(
     onCartClick: () -> Unit,
     onLoginClick: () -> Unit,
+    onProfileClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     cartItemCount: Int = 0,
-    isLoggedIn: Boolean = false
+    isLoggedIn: Boolean = false,
+    userName: String? = null
 ) {
     Surface(
         modifier = Modifier
@@ -82,18 +84,31 @@ fun MowiTopBar(
                 }
 
                 // Login/Profile Button
-                Button(
-                    onClick = onLoginClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MowiOrange,
-                        contentColor = TextWhite
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = if (isLoggedIn) "Perfil" else "Iniciar Sesión",
-                        style = MaterialTheme.typography.labelLarge
-                    )
+                if (isLoggedIn) {
+                    // Mostrar ícono de usuario cuando está logueado
+                    IconButton(onClick = onProfileClick) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Perfil",
+                            tint = MowiOrange,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                } else {
+                    // Mostrar botón de login cuando NO está logueado
+                    Button(
+                        onClick = onLoginClick,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MowiOrange,
+                            contentColor = TextWhite
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "Iniciar Sesión",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 }
             }
         }
