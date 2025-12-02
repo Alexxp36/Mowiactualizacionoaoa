@@ -38,7 +38,7 @@ fun AddProductScreen(
     val scrollState = rememberScrollState()
 
     var categorias by remember { mutableStateOf<List<Categoria>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
+    var isLoadingCategorias by remember { mutableStateOf(true) }
     var isSaving by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
@@ -61,14 +61,18 @@ fun AddProductScreen(
 
     // Cargar categorías
     LaunchedEffect(Unit) {
-        isLoading = true
+        isLoadingCategorias = true
+        errorMessage = null
         val result = repository.getCategorias()
-        result.onSuccess {
-            categorias = it
-            isLoading = false
-        }.onFailure {
-            errorMessage = "Error al cargar categorías"
-            isLoading = false
+        result.onSuccess { categoriasData ->
+            categorias = categoriasData
+            isLoadingCategorias = false
+            if (categoriasData.isEmpty()) {
+                errorMessage = "No hay categorías disponibles. Debes crear categorías primero."
+            }
+        }.onFailure { error ->
+            errorMessage = "Error al cargar categorías: ${error.message}"
+            isLoadingCategorias = false
         }
     }
 
@@ -178,11 +182,19 @@ fun AddProductScreen(
                 .padding(paddingValues)
                 .background(Color(0xFFF7FAFC))
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
+            if (isLoadingCategorias) {
+                Column(
                     modifier = Modifier.align(Alignment.Center),
-                    color = MowiOrange
-                )
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(color = MowiOrange)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Cargando categorías...",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextSecondary
+                    )
+                }
             } else {
                 Column(
                     modifier = Modifier
@@ -316,43 +328,81 @@ fun AddProductScreen(
 
                             ExposedDropdownMenuBox(
                                 expanded = expanded,
-                                onExpandedChange = { expanded = !expanded }
+                                onExpandedChange = {
+                                    if (categorias.isNotEmpty()) {
+                                        expanded = !expanded
+                                    }
+                                }
                             ) {
                                 OutlinedTextField(
                                     value = selectedCategoria?.nombre ?: "",
                                     onValueChange = {},
                                     readOnly = true,
                                     label = { Text("Categoría *") },
-                                    placeholder = { Text("Seleccionar categoría") },
+                                    placeholder = {
+                                        Text(
+                                            if (categorias.isEmpty()) "No hay categorías disponibles"
+                                            else "Seleccionar categoría"
+                                        )
+                                    },
                                     leadingIcon = {
                                         Icon(Icons.Default.Category, contentDescription = null)
                                     },
                                     trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                        if (categorias.isNotEmpty()) {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                        } else {
+                                            Icon(
+                                                Icons.Default.Warning,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
                                     },
-                                    isError = categoriaError != null,
-                                    supportingText = categoriaError?.let {
-                                        { Text(it, color = MaterialTheme.colorScheme.error) }
+                                    isError = categoriaError != null || categorias.isEmpty(),
+                                    supportingText = {
+                                        Text(
+                                            text = when {
+                                                categorias.isEmpty() -> "No hay categorías. Debes crearlas primero desde el backend."
+                                                categoriaError != null -> categoriaError!!
+                                                else -> "${categorias.size} categorías disponibles"
+                                            },
+                                            color = if (categorias.isEmpty()) MaterialTheme.colorScheme.error else TextSecondary
+                                        )
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .menuAnchor(),
-                                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                    enabled = categorias.isNotEmpty()
                                 )
 
                                 ExposedDropdownMenu(
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false }
                                 ) {
-                                    categorias.forEach { categoria ->
+                                    if (categorias.isEmpty()) {
                                         DropdownMenuItem(
-                                            text = { Text(categoria.nombre) },
-                                            onClick = {
-                                                categoriaId = categoria.id
-                                                categoriaError = null
-                                                expanded = false
-                                            }
+                                            text = {
+                                                Text(
+                                                    "No hay categorías disponibles",
+                                                    color = TextSecondary
+                                                )
+                                            },
+                                            onClick = { expanded = false },
+                                            enabled = false
                                         )
+                                    } else {
+                                        categorias.forEach { categoria ->
+                                            DropdownMenuItem(
+                                                text = { Text(categoria.nombre) },
+                                                onClick = {
+                                                    categoriaId = categoria.id
+                                                    categoriaError = null
+                                                    expanded = false
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
