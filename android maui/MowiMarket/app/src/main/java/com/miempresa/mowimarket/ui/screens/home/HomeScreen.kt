@@ -55,12 +55,6 @@ fun HomeScreen(
     var categoriaSeleccionada by remember { mutableStateOf<Int?>(null) }
     val scrollState = rememberScrollState()
 
-    // Cargar datos al iniciar
-    LaunchedEffect(Unit) {
-        productosViewModel.cargarCategorias()
-        productosViewModel.cargarProductos()
-    }
-
     // Filtrar productos según categoría seleccionada
     val productosFiltrados = remember(productos, categoriaSeleccionada) {
         if (categoriaSeleccionada == null) {
