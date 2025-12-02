@@ -130,8 +130,8 @@ fun ProfileScreen(
             ProfileSection(title = "Información Personal") {
                 ProfileInfoItem(
                     icon = Icons.Default.Person,
-                    label = "Nombre de usuario",
-                    value = currentUser?.username ?: "N/A"
+                    label = "Nombre completo",
+                    value = currentUser?.name ?: "N/A"
                 )
                 Divider()
                 ProfileInfoItem(
@@ -148,6 +148,12 @@ fun ProfileScreen(
                         currentUser?.isStaff == true -> "Staff"
                         else -> "Cliente"
                     }
+                )
+                Divider()
+                ProfileInfoItem(
+                    icon = Icons.Default.AccountCircle,
+                    label = "ID de usuario",
+                    value = "#${currentUser?.id ?: "N/A"}"
                 )
             }
 
