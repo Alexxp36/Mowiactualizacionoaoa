@@ -195,7 +195,10 @@ fun AdminPedidosScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(pedidosFiltrados) { pedido ->
+                        items(
+                            items = pedidosFiltrados,
+                            key = { it.id }
+                        ) { pedido ->
                             PedidoAdminCard(pedido = pedido)
                         }
                     }

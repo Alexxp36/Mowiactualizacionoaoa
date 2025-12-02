@@ -28,7 +28,7 @@ fun AdminProductsScreen(
     val viewModel = remember { ProductosViewModel(context) }
     val productos by viewModel.productos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val errorMessage by viewModel.error.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -160,7 +160,10 @@ fun AdminProductsScreen(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(productosFiltrados) { producto ->
+                        items(
+                            items = productosFiltrados,
+                            key = { it.id }
+                        ) { producto ->
                             ProductoAdminCard(
                                 producto = producto,
                                 onEdit = { onEditProduct(producto.id) },
