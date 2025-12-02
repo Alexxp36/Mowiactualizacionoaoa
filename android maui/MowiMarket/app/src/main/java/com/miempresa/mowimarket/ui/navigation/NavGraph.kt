@@ -104,9 +104,21 @@ fun NavGraph(
         }
 
         composable(Screen.Auth.route) {
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val mainViewModel = androidx.compose.runtime.remember { com.miempresa.mowimarket.ui.viewmodels.MainViewModel(context) }
+            val currentUser by mainViewModel.currentUser.collectAsState()
+
             AuthScreen(
                 onLoginSuccess = {
-                    navController.popBackStack()
+                    // Redirigir según el rol del usuario
+                    val isAdmin = currentUser?.isAdmin == true || currentUser?.isStaff == true
+                    if (isAdmin) {
+                        navController.navigate(Screen.AdminDashboard.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
                 },
                 onDismiss = {
                     navController.popBackStack()
@@ -123,6 +135,42 @@ fun NavGraph(
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        // Admin Routes
+        composable(Screen.AdminDashboard.route) {
+            com.miempresa.mowimarket.ui.screens.admin.AdminDashboardScreen(
+                onNavigateToProducts = {
+                    navController.navigate(Screen.AdminProducts.route)
+                },
+                onNavigateToPedidos = {
+                    navController.navigate(Screen.AdminPedidos.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
+                },
+                onLogout = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.AdminProducts.route) {
+            com.miempresa.mowimarket.ui.screens.admin.AdminProductsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.AdminPedidos.route) {
+            com.miempresa.mowimarket.ui.screens.admin.AdminPedidosScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
