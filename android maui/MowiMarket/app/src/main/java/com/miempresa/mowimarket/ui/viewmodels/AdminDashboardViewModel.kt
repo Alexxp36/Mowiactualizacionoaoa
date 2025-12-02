@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miempresa.mowimarket.data.models.*
+import com.miempresa.mowimarket.data.preferences.TokenManager
 import com.miempresa.mowimarket.data.repository.MowiRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +42,8 @@ enum class PeriodoFiltro {
 }
 
 class AdminDashboardViewModel(context: Context) : ViewModel() {
-    private val repository = MowiRepository(context)
+    private val tokenManager = TokenManager(context)
+    private val repository = MowiRepository(tokenManager)
 
     private val _state = MutableStateFlow(AdminDashboardState())
     val state: StateFlow<AdminDashboardState> = _state.asStateFlow()

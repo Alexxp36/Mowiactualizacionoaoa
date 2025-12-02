@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miempresa.mowimarket.data.models.Pedido
+import com.miempresa.mowimarket.data.preferences.TokenManager
 import com.miempresa.mowimarket.data.repository.MowiRepository
 import com.miempresa.mowimarket.ui.theme.MowiOrange
 import com.miempresa.mowimarket.ui.theme.TextSecondary
@@ -29,7 +30,8 @@ fun AdminPedidosScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val repository = remember { MowiRepository(context) }
+    val tokenManager = remember { TokenManager(context) }
+    val repository = remember { MowiRepository(tokenManager) }
 
     var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
