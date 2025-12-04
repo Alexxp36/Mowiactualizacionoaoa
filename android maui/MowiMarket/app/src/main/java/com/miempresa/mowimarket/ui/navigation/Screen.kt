@@ -15,6 +15,7 @@ sealed class Screen(val route: String) {
         fun createRoute(productId: String) = "product/$productId"
     }
     object Cart : Screen("cart")
+    object Checkout : Screen("checkout")
     object Support : Screen("support")
     object Auth : Screen("auth")
     object Profile : Screen("profile")

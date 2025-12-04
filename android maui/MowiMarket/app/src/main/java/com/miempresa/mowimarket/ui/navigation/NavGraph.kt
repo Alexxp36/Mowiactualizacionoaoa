@@ -96,6 +96,22 @@ fun NavGraph(
                     navController.navigate(Screen.Products.route) {
                         popUpTo(Screen.Home.route)
                     }
+                },
+                onNavigateToCheckout = {
+                    navController.navigate(Screen.Checkout.route)
+                }
+            )
+        }
+
+        composable(Screen.Checkout.route) {
+            com.miempresa.mowimarket.ui.screens.checkout.CheckoutScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onOrderComplete = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
                 }
             )
         }

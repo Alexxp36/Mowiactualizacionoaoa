@@ -24,6 +24,7 @@ import com.miempresa.mowimarket.ui.components.*
 import com.miempresa.mowimarket.ui.theme.MowiOrange
 import com.miempresa.mowimarket.ui.theme.TextSecondary
 import com.miempresa.mowimarket.ui.theme.TextWhite
+import com.miempresa.mowimarket.ui.viewmodels.CarritoViewModel
 import com.miempresa.mowimarket.ui.viewmodels.MainViewModel
 import com.miempresa.mowimarket.ui.viewmodels.ProductosViewModel
 import kotlinx.coroutines.launch
@@ -39,10 +40,21 @@ fun HomeScreen(
     val context = LocalContext.current
     val mainViewModel = remember { MainViewModel(context) }
     val productosViewModel = remember { ProductosViewModel(context) }
+    val carritoViewModel = remember { CarritoViewModel(context) }
     val scope = rememberCoroutineScope()
 
     val currentUser by mainViewModel.currentUser.collectAsState()
     val isLoggedIn = currentUser != null
+    val mensaje by carritoViewModel.mensaje.collectAsState()
+
+    // Mostrar mensaje cuando se agrega al carrito
+    LaunchedEffect(mensaje) {
+        if (mensaje != null) {
+            // El mensaje se mostrará brevemente
+            kotlinx.coroutines.delay(2000)
+            carritoViewModel.limpiarMensaje()
+        }
+    }
 
     // Estados del drawer
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -374,8 +386,14 @@ fun HomeScreen(
                             items(productosCompat) { product ->
                                 ProductCard(
                                     product = product,
-                                    onProductClick = { /* TODO */ },
-                                    onAddToCart = { /* TODO */ }
+                                    onProductClick = { /* TODO: Navegar a detalle */ },
+                                    onAddToCart = {
+                                        if (isLoggedIn) {
+                                            carritoViewModel.agregarProducto(product.id.toInt(), 1)
+                                        } else {
+                                            onNavigateToAuth()
+                                        }
+                                    }
                                 )
                             }
                         }
